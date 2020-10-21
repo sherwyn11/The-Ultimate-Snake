@@ -2,9 +2,8 @@ import pygame
 import numpy as np
 import random
 import copy
-
-from astar import *
-from constants import *
+from astar import astar
+from constants import DISPLAY_WIDTH, DISPLAY_HEIGHT, PIXEL_SIZE, BLACK, GREEN
 
 class Snake:
 
@@ -23,7 +22,7 @@ class Snake:
         l = 0
         for snake in self.snake_body:
             if(l == len(self.snake_body) - 1):
-                pygame.draw.rect(game_display, BLUE, [snake[0], snake[1], PIXEL_SIZE, PIXEL_SIZE])
+                pygame.draw.rect(game_display, GREEN, [snake[0], snake[1], PIXEL_SIZE, PIXEL_SIZE])
             else:
                 pygame.draw.rect(game_display,  BLACK, [snake[0], snake[1], PIXEL_SIZE, PIXEL_SIZE])
                 l += 1
@@ -38,13 +37,13 @@ class Snake:
 
     def dead(self):
         if self.x >= DISPLAY_WIDTH or self.x <= 0 or self.y >= DISPLAY_HEIGHT or self.y <= 0:
-            print('Snake killed! Rip! Score is {}'.format(self.score))
+            print('Snake killed! Rip!')
             self.eaten = True
             return True
         
         for each in self.snake_body[:-1]:
             if each == self.snake_body[-1]:
-                print('OOf')
+                print('Snake killed! Rip!')
                 self.eaten = True
                 return True
 
@@ -67,29 +66,29 @@ class Snake:
                 grid.remove_snake_on_grid(body)
             self.prev = []
             self.update()
-            food.update()
+            food.update(self.snake_body)
             food.draw(game_display)
             self.eaten = True
 
         if(self.eaten):
             self.eaten = False
+
             for body in self.snake_body:
                 grid.put_snake_on_grid(body)
-
             self.prev = copy.deepcopy(self.snake_body)
-            self.path = astar(grid.grid, (self.x // PIXEL_SIZE, self.y // PIXEL_SIZE), (food.x // PIXEL_SIZE, food.y // PIXEL_SIZE))
+            self.path = astar(grid.grid, (self.y // PIXEL_SIZE, self.x // PIXEL_SIZE), (food.y // PIXEL_SIZE, food.x // PIXEL_SIZE))
 
         self.speed_x = 0
         self.speed_y = 0
 
-        if(self.path[0][0] * PIXEL_SIZE < self.x):
+        if(self.path[0][1] * PIXEL_SIZE < self.x):
             self.speed_x = - PIXEL_SIZE
-        elif(self.path[0][0] * PIXEL_SIZE > self.x):
+        elif(self.path[0][1] * PIXEL_SIZE > self.x):
             self.speed_x = PIXEL_SIZE
 
-        if(self.path[0][1] * PIXEL_SIZE > self.y):
+        if(self.path[0][0] * PIXEL_SIZE > self.y):
             self.speed_y =  PIXEL_SIZE
-        elif(self.path[0][1] * PIXEL_SIZE < self.y):
+        elif(self.path[0][0] * PIXEL_SIZE < self.y):
             self.speed_y = - PIXEL_SIZE
 
         self.x += self.speed_x

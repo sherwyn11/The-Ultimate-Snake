@@ -1,6 +1,5 @@
 import numpy as np
-
-from constants import *
+from constants import DISPLAY_WIDTH, DISPLAY_HEIGHT, PIXEL_SIZE
 
 class Grid:
 
